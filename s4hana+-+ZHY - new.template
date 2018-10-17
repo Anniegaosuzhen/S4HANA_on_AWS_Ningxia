@@ -1,0 +1,261 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "AWS cloudfomation for SAP S/4 HANA setup in ZHY, author Nanshan Li nanshanl@amazon.com",
+  "Metadata": {
+    "AWS::CloudFormation::Interface": {
+      "ParameterGroups": [
+        {
+          "Label": {
+            "default": "Network Configuration"
+          },
+          "Parameters": [
+            "VPCID",
+            "ResourceAvailabilityZone",
+            "SubnetId"
+          ]
+        },
+        {
+          "Label": {
+            "default": "Amazon EC2 Configuration"
+          },
+          "Parameters": [
+            "InstanceType",
+            "KeyPair"
+          ]
+        }
+      ],
+      "ParameterLabels": {
+        "VPCID": {
+          "default": "Which VPC should this be deployed to?"
+        }
+      }
+    },
+    "AWS::CloudFormation::Designer": {
+      "43617fcc-7b48-4d0c-a19b-c3c1f9af468b": {
+        "size": {
+          "width": 60,
+          "height": 60
+        },
+        "position": {
+          "x": 60,
+          "y": 90
+        },
+        "z": 1,
+        "embeds": []
+      },
+      "12b08b24-d474-4141-aa05-cb32ad792419": {
+        "size": {
+          "width": 60,
+          "height": 60
+        },
+        "position": {
+          "x": 180,
+          "y": 90
+        },
+        "z": 1,
+        "embeds": [],
+        "isrelatedto": [
+          "43617fcc-7b48-4d0c-a19b-c3c1f9af468b"
+        ]
+      }
+    }
+  },
+  "Parameters": {
+    "VPCID": {
+      "Description": "VPC ID",
+      "Type": "AWS::EC2::VPC::Id"
+    },
+    "ResourceAvailabilityZone": {
+      "Description": "The availability zone in which our server and storage volume reside",
+      "Type": "AWS::EC2::AvailabilityZone::Name"
+    },
+    "SubnetId": {
+      "Description": "Subnet IDs",
+      "Type": "AWS::EC2::Subnet::Id"
+    },
+    "InstanceType": {
+      "Description": "WebServer EC2 instance type",
+      "Type": "String",
+      "Default": "r4.8xlarge",
+      "AllowedValues": [
+        "r4.8xlarge",
+        "r4.16xlarge"
+      ]
+    },
+    "KeyPair": {
+      "Description": "Amazon EC2 Key Pair",
+      "Type": "AWS::EC2::KeyPair::KeyName"
+    }
+  },
+  "Resources": {
+    "HanaInstance": {
+      "Type": "AWS::EC2::Instance",
+      "Properties": {
+        "ImageId": "ami-03a66b6d17826eca9",
+        "KeyName": {
+          "Ref": "KeyPair"
+        },
+        "AvailabilityZone": {
+          "Ref": "ResourceAvailabilityZone"
+        },
+        "InstanceType": {
+          "Ref": "InstanceType"
+        },
+        "NetworkInterfaces": [
+          {
+            "AssociatePublicIpAddress": "true",
+            "DeviceIndex": "0",
+            "GroupSet": [
+              {
+                "Ref": "HanaSecurityGroup"
+              }
+            ],
+            "SubnetId": {
+              "Ref": "SubnetId"
+            }
+          }
+        ],
+        "BlockDeviceMappings": [
+          {
+            "DeviceName": "/dev/sda1",
+            "Ebs": {
+              "VolumeSize": "800",
+              "VolumeType": "gp2"
+            }
+          }
+        ],
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "S4 HANA 1710 Server"
+          }
+        ],
+        "UserData": {
+          "Fn::Base64": {
+            "Fn::Join": [
+              "\n",
+              [
+                "#!/bin/bash",
+                "localip=`curl -s http://169.254.169.254/latest/meta-data/local-ipv4`",
+                "sudo sed -i 's/172.31.47.39/'\"$localip\"'/g' /etc/hosts"
+              ]
+            ]
+          }
+        }
+      },
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "12b08b24-d474-4141-aa05-cb32ad792419"
+        }
+      }
+    },
+    "HanaSecurityGroup": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "GroupDescription": "Enable SSH access and HANA specific port",
+        "VpcId": {
+          "Ref": "VPCID"
+        },
+        "SecurityGroupIngress": [
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "22",
+            "ToPort": "22",
+            "CidrIp": "0.0.0.0/0"
+          },
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "1128",
+            "ToPort": "1128",
+            "CidrIp": "0.0.0.0/0"
+          },
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "44300",
+            "ToPort": "44300",
+            "CidrIp": "0.0.0.0/0"
+          },
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "4302",
+            "ToPort": "4302",
+            "CidrIp": "0.0.0.0/0"
+          },
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "5901",
+            "ToPort": "5904",
+            "CidrIp": "0.0.0.0/0"
+          },
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "5801",
+            "ToPort": "5804",
+            "CidrIp": "0.0.0.0/0"
+          },
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "50213",
+            "ToPort": "50214",
+            "CidrIp": "0.0.0.0/0"
+          },
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "3601",
+            "ToPort": "3601",
+            "CidrIp": "0.0.0.0/0"
+          },
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "3200",
+            "ToPort": "3200",
+            "CidrIp": "0.0.0.0/0"
+          },
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "30215",
+            "ToPort": "30215",
+            "CidrIp": "0.0.0.0/0"
+          },
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "3300",
+            "ToPort": "3300",
+            "CidrIp": "0.0.0.0/0"
+          },
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "8002",
+            "ToPort": "8002",
+            "CidrIp": "0.0.0.0/0"
+          }, 
+          {
+            "IpProtocol": "icmp",
+            "FromPort": "8",
+            "ToPort": "-1",
+            "CidrIp": "0.0.0.0/0"
+          },
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "1129",
+            "ToPort": "1129",
+            "CidrIp": "0.0.0.0/0"
+          }
+        ]
+      },
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "43617fcc-7b48-4d0c-a19b-c3c1f9af468b"
+        }
+      }
+    }
+  },
+  "Outputs": {
+    "SapHanaInstance": {
+      "Description": "Brief information of the S/4 HANA 1709 instance",
+      "Value": {
+        "Ref": "HanaInstance"
+      }
+    }
+  }
+}

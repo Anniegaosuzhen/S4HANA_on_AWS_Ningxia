@@ -1,0 +1,170 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "Start t2.micro pass account verification",
+  "Metadata": {
+    "AWS::CloudFormation::Interface": {
+      "ParameterGroups": [
+        {
+          "Label": {
+            "default": "Network Configuration"
+          },
+          "Parameters": [
+            "VPCID",
+            "ResourceAvailabilityZone",
+            "SubnetId"
+          ]
+        },
+        {
+          "Label": {
+            "default": "Amazon EC2 Configuration"
+          },
+          "Parameters": [
+            "InstanceType",
+            "KeyPair"
+          ]
+        }
+      ],
+      "ParameterLabels": {
+        "VPCID": {
+          "default": "Which VPC should this be deployed to?"
+        }
+      }
+    },
+    "AWS::CloudFormation::Designer": {
+      "43617fcc-7b48-4d0c-a19b-c3c1f9af468b": {
+        "size": {
+          "width": 60,
+          "height": 60
+        },
+        "position": {
+          "x": 60,
+          "y": 90
+        },
+        "z": 1,
+        "embeds": []
+      },
+      "12b08b24-d474-4141-aa05-cb32ad792419": {
+        "size": {
+          "width": 60,
+          "height": 60
+        },
+        "position": {
+          "x": 180,
+          "y": 90
+        },
+        "z": 1,
+        "embeds": [],
+        "isrelatedto": [
+          "43617fcc-7b48-4d0c-a19b-c3c1f9af468b"
+        ]
+      }
+    }
+  },
+  "Parameters": {
+    "VPCID": {
+      "Description": "VPC ID",
+      "Type": "AWS::EC2::VPC::Id"
+    },
+    "ResourceAvailabilityZone": {
+      "Description": "The availability zone in which our server and storage volume reside",
+      "Type": "AWS::EC2::AvailabilityZone::Name"
+    },
+    "SubnetId": {
+      "Description": "Subnet IDs",
+      "Type": "AWS::EC2::Subnet::Id"
+    },
+    "InstanceType": {
+      "Description": "t2.micro EC2 instance type",
+      "Type": "String",
+      "Default": "t2.micro",
+      "AllowedValues": [
+        "t2.micro"
+      ]
+    },
+    "KeyPair": {
+      "Description": "Amazon EC2 Key Pair",
+      "Type": "AWS::EC2::KeyPair::KeyName"
+    }
+  },
+  "Resources": {
+    "HanaInstance": {
+      "Type": "AWS::EC2::Instance",
+      "Properties": {
+        "ImageId": "ami-62b2a600",
+        "KeyName": {
+          "Ref": "KeyPair"
+        },
+        "AvailabilityZone": {
+          "Ref": "ResourceAvailabilityZone"
+        },
+        "InstanceType": {
+          "Ref": "InstanceType"
+        },
+        "NetworkInterfaces": [
+          {
+            "AssociatePublicIpAddress": "true",
+            "DeviceIndex": "0",
+            "GroupSet": [
+              {
+                "Ref": "HanaSecurityGroup"
+              }
+            ],
+            "SubnetId": {
+              "Ref": "SubnetId"
+            }
+          }
+        ],
+        "BlockDeviceMappings": [
+          {
+            "DeviceName": "/dev/sda1",
+            "Ebs": {
+              "VolumeSize": "20",
+              "VolumeType": "gp2"
+            }
+          }
+        ],
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "t2micro Active user"
+          }
+        ]
+      },
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "12b08b24-d474-4141-aa05-cb32ad792419"
+        }
+      }
+    },
+    "HanaSecurityGroup": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "GroupDescription": "Enable SSH access and HANA specific port",
+        "VpcId": {
+          "Ref": "VPCID"
+        },
+        "SecurityGroupIngress": [
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "22",
+            "ToPort": "22",
+            "CidrIp": "0.0.0.0/0"
+          }
+        ]
+      },
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "43617fcc-7b48-4d0c-a19b-c3c1f9af468b"
+        }
+      }
+    }
+  },
+  "Outputs": {
+    "SapHanaInstance": {
+      "Description": "Start t2.micro instance to active aws account",
+      "Value": {
+        "Ref": "HanaInstance"
+      }
+    }
+  }
+}
