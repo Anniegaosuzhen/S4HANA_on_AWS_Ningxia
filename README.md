@@ -9,6 +9,7 @@ SAP S/4 HANA on AWS ZHY
 欢迎联系参与方案共建和提交方案需求, 也欢迎在 github 项目issue中留言反馈bugs。
 --------------------------------------------------------------------------------------------------
 项目说明
+
 2008年开始SAP成为AWS云服务的用户并使用AWS云服务来部署相关的SAP开发以及测试系统。2012年11月AWS宣布SAP Business Suite解决方案被认证在AWS上全面支持客户产品部署。2017年SAP开始在HANA Enterprise Cloud、SAP Cloud Platform、S/4 HANA Cloud Edition等平台上基于AWS提供了多种方式支持客户运行他们的系统，客户可以采用按需实例的模式部署SAP DEV/QAS环境，也可以使用预留实例的方式使用SAP PRD环境。AWS帮助SAP客户在云端运行SAP S/4 HANA，客户当前只需要每小时很低的价格就可以运行被SAP官方认证的可以支持产品环境的实例，来安装SAP HANA软件。
 
 客户使用AWS Cloudformation，AWS提供了SAP一键部署的代码，帮助SAP客户可以实现SAP系统IDES，以及开发测试环境的一键部署。 
