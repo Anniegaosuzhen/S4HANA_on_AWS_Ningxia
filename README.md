@@ -27,12 +27,18 @@
 
 ## 操作步骤(TODO)
 1.	准备AWS宁夏区域账户和启动EC2实例
-![EasyVPN Architedcture](images/EC2.png)
+![EasyVPN Architedcture](/EC2.png)
 2.	创建新的密钥对，以便能够通过安全的方式访问系统实例
-![EasyVPN Architedcture](images/Keypair.png)
+![EasyVPN Architedcture](/Keypair.png)
 3.	启动SAP S/4 HANA系统实例
-![EasyVPN Architedcture](images/Cloudformation.png)
+![EasyVPN Architedcture](/Cloudformation.png)
 4.	实例创建成功后，通过SSH工具登陆操作系统然后启动SAP HANA DB和SAP Application
-![EasyVPN Server Routing](images/Startsap.png)
+![EasyVPN Server Routing](/Startsap.png)
 5.	服务启动完成后，分别采用SAP GUI和Fiori客户端登陆系统进行测试（第一次登陆系统时间会比较长一点，请您耐心等待）
-![EasyVPN Server Routing](images/SAPGUI.png)
+![EasyVPN Server Routing](/SAPGUI.png)
+6.	具体步骤请参考详细的操作手册《S4 HANA 1709 on AWS_20181015.pdf》
+![EasyVPN Server Routing](/SAPGUI.png)
+
+## 参考
+- Micro template: sapt2micro.template
+- S/4 HANA template:s4hana+-+ZHY - new.template
